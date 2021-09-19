@@ -35,13 +35,29 @@ public class ChessPlayer
 
     public void GenerateAllPossibleMoves()
     {
-        foreach(var piece in activePieces)
+        if (this.teamColor == TeamColor.Fairy)
         {
-            if (board.HasPiece(piece))
+            foreach (var piece in activePieces)
             {
-                piece.SelectAvailableSquares();
+                if (board.HasPiece(piece) && piece is Fairy)
+                {
+                    Fairy fairy = (Fairy)piece;
+                    fairy.SelectAvailableSquares();
+                    fairy.SelectTPSquares();
+                }
             }
         }
+        else
+        {
+            foreach (var piece in activePieces)
+            {
+                if (board.HasPiece(piece))
+                {
+                    piece.SelectAvailableSquares();
+                }
+            }
+        }
+
     }
 
     public Piece[] GetPiecesAttackingOppositePieceOfType<T>() where T : Piece

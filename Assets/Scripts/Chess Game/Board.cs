@@ -58,36 +58,44 @@ public class Board : MonoBehaviour
         {
             return;
         }
-        Vector2Int coords = this.CalculateCoordsFromPosition(inputPosition);
-        Piece piece = this.GetPieceOnSquare(coords);
-        // case that there's already a peice selected
-        if (selectedPiece)
+        if (this.chessGameController.IsTeamTurnActive(TeamColor.Fairy))
         {
-            // case that player selects the same piece, should deselect
-            if (piece != null && selectedPiece == piece)
-            {
-                this.DeselectPiece();
-            }
-            // case that player selects another piece (from the same team)
-            else if (piece != null && selectedPiece != piece && this.chessGameController.IsTeamTurnActive(piece.color))
-            {
-                this.SelectPiece(piece);
-            }
-            // case that player clicks an empty square, should try to move the piece
-            else if (this.selectedPiece.CanMoveTo(coords))
-            {
-                this.OnSelectedPieceMoved(coords);
-            }
-
+            // do fairy stuff
         }
         else
         {
-            if (piece != null && chessGameController.IsTeamTurnActive(piece.color))
+            Vector2Int coords = this.CalculateCoordsFromPosition(inputPosition);
+            Piece piece = this.GetPieceOnSquare(coords);
+            // case that there's already a peice selected
+            if (selectedPiece)
             {
-                this.SelectPiece(piece);
-            }
+                // case that player selects the same piece, should deselect
+                if (piece != null && selectedPiece == piece)
+                {
+                    this.DeselectPiece();
+                }
+                // case that player selects another piece (from the same team)
+                else if (piece != null && selectedPiece != piece && this.chessGameController.IsTeamTurnActive(piece.color))
+                {
+                    this.SelectPiece(piece);
+                }
+                // case that player clicks an empty square, should try to move the piece
+                else if (this.selectedPiece.CanMoveTo(coords))
+                {
+                    this.OnSelectedPieceMoved(coords);
+                }
 
+            }
+            else
+            {
+                if (piece != null && chessGameController.IsTeamTurnActive(piece.color))
+                {
+                    this.SelectPiece(piece);
+                }
+
+            }
         }
+
     }
 
     internal void PromotePawn(Pawn pawn)
@@ -130,6 +138,7 @@ public class Board : MonoBehaviour
         this.chessGameController.EndTurn();
     }
 
+    // oldPiece should be null in the common case when a piece moves
     public void UpdateBoardOnPieceMove(Vector2Int newCoords, Vector2Int oldCoords, Piece newPiece, Piece oldPiece)
     {
         this.grid[oldCoords.x, oldCoords.y] = oldPiece;
