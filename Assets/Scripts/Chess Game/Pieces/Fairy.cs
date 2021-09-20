@@ -15,7 +15,7 @@ public class Fairy : Piece
         Vector2Int.right,
         Vector2Int.down
     };
-    private int tpCharges = 0;
+    internal int tpCharges = 0;
     public List<Vector2Int> tpMoves;
     public List<Vector2Int> SelectTPSquares()
     {
@@ -87,12 +87,7 @@ public class Fairy : Piece
                 {
                     this.TryToAddMove(nextCoords);
                 }
-                else if (!piece.IsFromSameTeam(this))
-                {
-                    this.TryToAddMove(nextCoords);
-                    break;
-                }
-                else if (piece.IsFromSameTeam(this))
+                else
                 {
                     break;
                 }
@@ -100,16 +95,9 @@ public class Fairy : Piece
         }
     }
 
-    public void MoveFairy(Vector2Int toCoords, bool isTPMove)
+    public override void MovePiece(Vector2Int toCoords)
     {
-        if (isTPMove)
-        {
-            this.tpCharges = tpCharges - 1;
-            this.MovePiece(toCoords);
-        }
-        else
-        {
-            this.MovePiece(toCoords);
-        }
+        base.MovePiece(toCoords);
     }
+
 }

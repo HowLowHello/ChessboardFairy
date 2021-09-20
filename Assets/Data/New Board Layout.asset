@@ -109,3 +109,6 @@ MonoBehaviour:
   - position: {x: 8, y: 7}
     pieceType: 5
     teamColor: 0
+  - position: {x: 5, y: 5}
+    pieceType: 6
+    teamColor: 2

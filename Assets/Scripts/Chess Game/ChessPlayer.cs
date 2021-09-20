@@ -70,6 +70,7 @@ public class ChessPlayer
         return activePieces.Where(p => p is T).ToArray();
     }
 
+    //
     public void RemoveMovesEnablingAttackOnPiece<T>(ChessPlayer opponent, Piece selectedPiece) where T : Piece
     {
         List<Vector2Int> coordsToRemove = new List<Vector2Int>();

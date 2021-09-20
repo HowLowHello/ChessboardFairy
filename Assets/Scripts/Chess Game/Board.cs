@@ -58,14 +58,53 @@ public class Board : MonoBehaviour
         {
             return;
         }
+        Vector2Int coords = this.CalculateCoordsFromPosition(inputPosition);
+        Piece piece = this.GetPieceOnSquare(coords);
+
         if (this.chessGameController.IsTeamTurnActive(TeamColor.Fairy))
         {
-            // do fairy stuff
+            // fairy
+            if (selectedPiece)
+            {
+                if (piece != null && selectedPiece == piece)
+                {
+                    this.DeselectPiece();
+                }
+                else if (piece != null && selectedPiece != piece)
+                {
+                    this.DeselectPiece();
+                    this.ShowSelectionSquares(piece);
+                }
+                else if (piece == null && selectedPiece is Fairy)
+                {
+                    Fairy fairy = (Fairy)selectedPiece;
+                    if (fairy.CanMoveTo(coords))
+                    {
+                        this.OnSelectedPieceMoved(coords);
+                    }
+                    else if (fairy.CanTeleportTo(coords))
+                    {
+                        fairy.tpCharges = fairy.tpCharges - 1;
+                        this.OnSelectedPieceMoved(coords);
+                    }
+                }
+            }
+            else
+            {
+                if (piece != null && piece is Fairy)
+                {
+                    this.SelectPiece(piece);
+                }
+                else if (piece != null)
+                {
+                    this.ShowSelectionSquares(piece);
+                }
+
+            }
         }
         else
         {
-            Vector2Int coords = this.CalculateCoordsFromPosition(inputPosition);
-            Piece piece = this.GetPieceOnSquare(coords);
+            //  white player and black player
             // case that there's already a peice selected
             if (selectedPiece)
             {
@@ -106,14 +145,17 @@ public class Board : MonoBehaviour
 
     private void SelectPiece(Piece piece)
     {
-        this.chessGameController.RemoveMovesEnablingAttackOnPieceOfType<King>(piece);
+        if (!chessGameController.IsTeamTurnActive(TeamColor.Fairy))
+        {
+            this.chessGameController.RemoveMovesEnablingAttackOnPieceOfType<King>(piece);
+        }
         this.selectedPiece = piece;
-        List<Vector2Int> selection = this.selectedPiece.availableMoves;
-        this.ShowSelectionSquares(selection);
+        this.ShowSelectionSquares(this.selectedPiece);
     }
 
-    private void ShowSelectionSquares(List<Vector2Int> selection)
+    private void ShowSelectionSquares(Piece piece)
     {
+        List<Vector2Int> selection = piece.availableMoves;
         Dictionary<Vector3, bool> squaresData = new Dictionary<Vector3, bool>();
         for(int i = 0; i < selection.Count; i++)
         {

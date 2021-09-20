@@ -1335,6 +1335,7 @@ MonoBehaviour:
   - {fileID: 104878, guid: 48d5ea4ff810d0e4ea36af7235dd5fd7, type: 3}
   - {fileID: 103078, guid: 6f38c700bedefe64f8364436528e5c3d, type: 3}
   - {fileID: 114028, guid: 43ef2ba32fda59c42a1410ea490d494b, type: 3}
+  - {fileID: 6149644100581174062, guid: 3bc51a41d6938e447a59637bd0fe3ed1, type: 3}
   blackMaterial: {fileID: 2100000, guid: ca766c837aa17834ebbfac5b5bdeebc4, type: 2}
   whiteMaterial: {fileID: 2100000, guid: 2562ca2467c9c43499569dc25296fb31, type: 2}
 --- !u!1 &2003380215

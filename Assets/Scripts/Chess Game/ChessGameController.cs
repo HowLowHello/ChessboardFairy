@@ -15,7 +15,9 @@ public class ChessGameController : MonoBehaviour
     private PiecesCreator piecesCreator;
     private ChessPlayer whitePlayer;
     private ChessPlayer blackPlayer;
+    private ChessPlayer fairyPlayer;
     private ChessPlayer activePlayer;
+    private ChessPlayer previousPlayer;
 
     private void Awake()
     {
@@ -27,6 +29,7 @@ public class ChessGameController : MonoBehaviour
     {
         this.whitePlayer = new ChessPlayer(TeamColor.White, board);
         this.blackPlayer = new ChessPlayer(TeamColor.Black, board);
+        this.fairyPlayer = new ChessPlayer(TeamColor.Fairy, board);
     }
 
     private void SetDependencies()
@@ -43,11 +46,11 @@ public class ChessGameController : MonoBehaviour
     private void StartNewGame()
     {
         this.SetGameState(GameState.Init);
+        this.board.SetDependencies(this);
         this.uiController.HideUI();
         this.CreatePiecesFromLayout(this.startingBoardLayout);
         this.activePlayer = whitePlayer;
         this.GenerateAllPossiblePlayerMoves(activePlayer);
-        this.board.SetDependencies(this);
         this.SetGameState(GameState.Play);
     }
 
@@ -64,6 +67,7 @@ public class ChessGameController : MonoBehaviour
     {
         this.whitePlayer.activePieces.ForEach(p => GameObject.Destroy(p.gameObject));
         this.blackPlayer.activePieces.ForEach(p => GameObject.Destroy(p.gameObject));
+        this.fairyPlayer.activePieces.ForEach(p => GameObject.Destroy(p.gameObject));
     }
 
     private void CreatePiecesFromLayout(BoardLayout layout)
@@ -89,17 +93,27 @@ public class ChessGameController : MonoBehaviour
         {
             this.piecesCreator = GetComponent<PiecesCreator>();
         }
+        if (color == TeamColor.Fairy)
+        {
+            Piece newFairy = this.piecesCreator.CreatePiece(type).GetComponent<Piece>();
+            newFairy.SetData(squareCoords, color, board);
+            board.SetPieceOnBoard(squareCoords, newFairy);
+            fairyPlayer.AddPiece(newFairy);
+        }
+        else
+        {
+            Piece newPiece = this.piecesCreator.CreatePiece(type).GetComponent<Piece>();
+            newPiece.SetData(squareCoords, color, board);
 
-        Piece newPiece = this.piecesCreator.CreatePiece(type).GetComponent<Piece>();
-        newPiece.SetData(squareCoords, color, board);
+            Material teamMaterial = piecesCreator.GetTeamMaterial(color);
+            newPiece.SetMaterial(teamMaterial);
 
-        Material teamMaterial = piecesCreator.GetTeamMaterial(color);
-        newPiece.SetMaterial(teamMaterial);
+            board.SetPieceOnBoard(squareCoords, newPiece);
 
-        board.SetPieceOnBoard(squareCoords, newPiece);
+            ChessPlayer currentPlayer = color == TeamColor.White ? whitePlayer : blackPlayer;
+            currentPlayer.AddPiece(newPiece);
+        }
 
-        ChessPlayer currentPlayer = color == TeamColor.White ? whitePlayer : blackPlayer;
-        currentPlayer.AddPiece(newPiece);
     }
 
     private void SetGameState(GameState state)
@@ -119,11 +133,20 @@ public class ChessGameController : MonoBehaviour
 
     public void EndTurn()
     {
-        this.GenerateAllPossiblePlayerMoves(activePlayer);
-        this.GenerateAllPossiblePlayerMoves(this.GetOpponentTo(activePlayer));
-        if (CheckIfGameIsFinished())
+        this.GenerateAllPossiblePlayerMoves(whitePlayer);
+        this.GenerateAllPossiblePlayerMoves(blackPlayer);
+        this.GenerateAllPossiblePlayerMoves(fairyPlayer);
+        if (activePlayer != fairyPlayer)
         {
-            this.EndGame();
+            if (CheckIfPlayerCanFinishGame(activePlayer))
+            {
+                this.EndGame();
+            }
+            else
+            {
+                this.ChangeActiveTeam();
+                return;
+            }
         }
         else
         {
@@ -138,19 +161,20 @@ public class ChessGameController : MonoBehaviour
         Debug.Log("Game Finished");
     }
 
-    private bool CheckIfGameIsFinished()
+    private bool CheckIfPlayerCanFinishGame(ChessPlayer player)
     {
-        Piece[] kingAttackingPieces = activePlayer.GetPiecesAttackingOppositePieceOfType<King>();
+        // player should be activePlayer
+        Piece[] kingAttackingPieces = player.GetPiecesAttackingOppositePieceOfType<King>();
         if (kingAttackingPieces.Length > 0)
         {
-            ChessPlayer oppositePlayer = this.GetOpponentTo(activePlayer);
+            ChessPlayer oppositePlayer = this.GetOpponentTo(player);
             Piece attackedKing = oppositePlayer.GetPiecesOfType<King>().FirstOrDefault();
-            oppositePlayer.RemoveMovesEnablingAttackOnPiece<King>(activePlayer, attackedKing);
+            oppositePlayer.RemoveMovesEnablingAttackOnPiece<King>(player, attackedKing);
 
             int availableKingMoves = attackedKing.availableMoves.Count;
             if (availableKingMoves == 0)
             {
-                bool canCoverKing = oppositePlayer.CanHidePieceFromAttack<King>(activePlayer);
+                bool canCoverKing = oppositePlayer.CanHidePieceFromAttack<King>(player);
                 if (!canCoverKing)
                 {
                     return true;
@@ -160,14 +184,32 @@ public class ChessGameController : MonoBehaviour
         return false;
     }
 
-    private ChessPlayer GetOpponentTo(ChessPlayer player)
-    {
-        return player == whitePlayer ? blackPlayer : whitePlayer;
-    }
     private void ChangeActiveTeam()
     {
-        this.activePlayer = activePlayer == whitePlayer ? blackPlayer : whitePlayer;
+        if (activePlayer != fairyPlayer)
+        {
+            this.previousPlayer = activePlayer;
+        }
+        this.activePlayer = GetPlayerNextTo(activePlayer);
     }
+
+    private ChessPlayer GetPlayerNextTo(ChessPlayer player)
+    {
+        if (player == fairyPlayer)
+            return GetOpponentTo(previousPlayer);
+        else 
+            return fairyPlayer;
+    }
+
+    private ChessPlayer GetOpponentTo(ChessPlayer player)
+    {
+        if (player == fairyPlayer)
+        {
+            Debug.LogError("GetOpponentTo() produces a bug");
+        }
+        return player == whitePlayer ? blackPlayer : whitePlayer;
+    }
+
 
     public void RemoveMovesEnablingAttackOnPieceOfType<T>(Piece piece) where T : Piece
     {
