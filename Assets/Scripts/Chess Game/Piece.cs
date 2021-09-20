@@ -28,6 +28,10 @@ public abstract class Piece : MonoBehaviour
 
     public void SetMaterial(Material materialIn)
     {
+        if (this is Fairy)
+        {
+            return;
+        }
         this.materialSetter.SetSingleMaterial(materialIn);
         if (this.materialSetter == null)
         {
