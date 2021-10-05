@@ -495,6 +495,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   freeSquareMaterial: {fileID: 2100000, guid: 2054633fffe05354685288cfe63d0a54, type: 2}
   opponentSquareMaterial: {fileID: 2100000, guid: c82954a0db11c1f4ebfb986cce63be8e, type: 2}
+  teleportationSquareMaterial: {fileID: 2100000, guid: bd87f0bcde1e9494b967c581ae7de638, type: 2}
+  traceSquareMaterial: {fileID: 2100000, guid: cac025d93911be24691464c8b42fda4e, type: 2}
   selectorPrefab: {fileID: 1625892269204815410, guid: 3186628bc4da7964aa5f8112114a0566, type: 3}
 --- !u!1 &705507993
 GameObject:

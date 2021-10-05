@@ -5,14 +5,16 @@ using UnityEngine;
 
 public class SquareSelectorCreator : MonoBehaviour
 {
-    [SerializeField] private Material freeSquareMaterial;
-    [SerializeField] private Material opponentSquareMaterial;
-    [SerializeField] private GameObject selectorPrefab;
+    [SerializeField] internal Material freeSquareMaterial;
+    [SerializeField] internal Material opponentSquareMaterial;
+    [SerializeField] internal Material teleportationSquareMaterial;
+    [SerializeField] internal Material traceSquareMaterial;
+    [SerializeField] internal GameObject selectorPrefab;
     private List<GameObject> instantiatedSelectors = new List<GameObject>();
 
     public void ShowSelection(Dictionary<Vector3, bool> squareData)
     {
-        this.ClearSelection();
+        this.ClearAllSelectors();
         foreach (var data in squareData)
         {
             GameObject selector = Instantiate(this.selectorPrefab, data.Key, Quaternion.identity);
@@ -24,7 +26,20 @@ public class SquareSelectorCreator : MonoBehaviour
         }
     }
 
-    public void ClearSelection()
+    public void ShowTeleportSelection(List<Vector3> squares)
+    {
+        foreach (var square in squares)
+        {
+            GameObject selector = Instantiate(this.selectorPrefab, square, Quaternion.identity);
+            this.instantiatedSelectors.Add(selector);
+            foreach (var setter in selector.GetComponentsInChildren<MaterialSetter>())
+            {
+                setter.SetSingleMaterial(teleportationSquareMaterial);
+            }
+        }
+    }
+
+    public void ClearAllSelectors()
     {
         foreach (var selector in instantiatedSelectors)
         {

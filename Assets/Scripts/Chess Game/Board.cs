@@ -14,6 +14,7 @@ public class Board : MonoBehaviour
     // 2d array to store pieces
     private Piece[,] grid;
     private Piece selectedPiece;
+    internal int nonpawnPiecesTakenOut = 0;
     // board size, length / width
     public const int BOARD_SIZE = 8;
 
@@ -34,12 +35,12 @@ public class Board : MonoBehaviour
         this.chessGameController = chessGameController;
     }
 
-    public Vector3 CalculatePositionFromCoords(Vector2Int coords)
+    internal Vector3 CalculatePositionFromCoords(Vector2Int coords)
     {
         return bottomLeftSquareTransform.position + new Vector3(coords.x * squareSize, 0f, coords.y * squareSize);
     }
 
-    private Vector2Int CalculateCoordsFromPosition(Vector3 inputPosition)
+    internal Vector2Int CalculateCoordsFromPosition(Vector3 inputPosition)
     {
         int x = Mathf.FloorToInt(transform.InverseTransformPoint(inputPosition).x / squareSize) + BOARD_SIZE / 2;
         int y = Mathf.FloorToInt(transform.InverseTransformPoint(inputPosition).z / squareSize) + BOARD_SIZE / 2;
@@ -84,10 +85,10 @@ public class Board : MonoBehaviour
                     }
                     else if (fairy.CanTeleportTo(coords))
                     {
-                        fairy.tpCharges = fairy.tpCharges - 1;
-                        this.OnSelectedPieceMoved(coords);
+                        this.OnSelectedFairyTeleported(coords, fairy);
                     }
                 }
+
             }
             else
             {
@@ -164,12 +165,33 @@ public class Board : MonoBehaviour
             squaresData.Add(position, isSquareFree);
         }
         this.squareSelectorCreator.ShowSelection(squaresData);
+
+        if (piece is Fairy)
+        {
+            Fairy fairy = (Fairy)piece;
+            if (fairy.hasTPCharges())
+            {
+            this.ShowTeleportationSquares(fairy);
+            }
+        }
+    }
+
+    private void ShowTeleportationSquares(Fairy fairy)
+    {
+        List<Vector2Int> tpSelection = fairy.tpMoves;
+        List<Vector3> squares = new List<Vector3>();
+        for (int i = 0; i < tpSelection.Count; i++)
+        {
+            Vector3 position = this.CalculatePositionFromCoords(tpSelection[i]);
+            squares.Add(position);
+        }
+        this.squareSelectorCreator.ShowTeleportSelection(squares);
     }
 
     private void DeselectPiece()
     {
         this.selectedPiece = null;
-        this.squareSelectorCreator.ClearSelection();
+        this.squareSelectorCreator.ClearAllSelectors();
     }
     private void OnSelectedPieceMoved(Vector2Int toCoords)
     {
@@ -179,8 +201,15 @@ public class Board : MonoBehaviour
         this.DeselectPiece();
         this.chessGameController.EndTurn();
     }
+    private void OnSelectedFairyTeleported(Vector2Int toCoords, Fairy fairy)
+    {
+        this.UpdateBoardOnPieceMove(toCoords, fairy.occupiedSqure, fairy, null);
+        fairy.Teleport(toCoords);
+        this.DeselectPiece();
+        this.chessGameController.EndTurn();
+    }
 
-    // oldPiece should be null in the common case when a piece moves
+    // oldPiece should be null in the common case as a piece moves
     public void UpdateBoardOnPieceMove(Vector2Int newCoords, Vector2Int oldCoords, Piece newPiece, Piece oldPiece)
     {
         this.grid[oldCoords.x, oldCoords.y] = oldPiece;
@@ -200,6 +229,10 @@ public class Board : MonoBehaviour
     {
         if (piece)
         {
+            if (!(piece is Pawn) && !(piece is Fairy))
+            {
+                this.nonpawnPiecesTakenOut += 1;
+            }
             this.grid[piece.occupiedSqure.x, piece.occupiedSqure.y] = null;
             this.chessGameController.OnPieceRemoved(piece);
         }

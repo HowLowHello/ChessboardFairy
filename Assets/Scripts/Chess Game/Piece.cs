@@ -15,7 +15,7 @@ public abstract class Piece : MonoBehaviour
 
     public List<Vector2Int> availableMoves;
 
-    private IObjectTweener tweener;
+    protected IObjectTweener tweener;
     public abstract List<Vector2Int> SelectAvailableSquares();
 
     private void Awake()
