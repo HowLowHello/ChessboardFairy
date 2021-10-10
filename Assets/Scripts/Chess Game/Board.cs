@@ -14,9 +14,12 @@ public class Board : MonoBehaviour
     // 2d array to store pieces
     private Piece[,] grid;
     private Piece selectedPiece;
-    internal int nonpawnPiecesTakenOut = 0;
+    public int nonpawnPiecesTakenOut = 4;
     // board size, length / width
     public const int BOARD_SIZE = 8;
+    // fields handling fairy teleportation
+    private Fairy fairyToTeleport;
+    private Vector2Int coordsToTeleport;
 
     private void Awake()
     {
@@ -85,7 +88,10 @@ public class Board : MonoBehaviour
                     }
                     else if (fairy.CanTeleportTo(coords))
                     {
-                        this.OnSelectedFairyTeleported(coords, fairy);
+                        fairy.PrepareToTeleport(inputPosition);
+                        this.fairyToTeleport = fairy;
+                        this.coordsToTeleport = coords;
+                        Invoke("OnSelectedFairyTeleported", 1.2f);
                     }
                 }
 
@@ -201,10 +207,14 @@ public class Board : MonoBehaviour
         this.DeselectPiece();
         this.chessGameController.EndTurn();
     }
-    private void OnSelectedFairyTeleported(Vector2Int toCoords, Fairy fairy)
+    private void OnSelectedFairyTeleported()
     {
-        this.UpdateBoardOnPieceMove(toCoords, fairy.occupiedSqure, fairy, null);
-        fairy.Teleport(toCoords);
+        if (!chessGameController.IsTeamTurnActive(TeamColor.Fairy) || fairyToTeleport == null)
+        {
+            return;
+        }
+        this.UpdateBoardOnPieceMove(coordsToTeleport, fairyToTeleport.occupiedSqure, fairyToTeleport, null);
+        fairyToTeleport.Teleport(coordsToTeleport);
         this.DeselectPiece();
         this.chessGameController.EndTurn();
     }
@@ -231,7 +241,7 @@ public class Board : MonoBehaviour
         {
             if (!(piece is Pawn) && !(piece is Fairy))
             {
-                this.nonpawnPiecesTakenOut += 1;
+                this.nonpawnPiecesTakenOut ++;
             }
             this.grid[piece.occupiedSqure.x, piece.occupiedSqure.y] = null;
             this.chessGameController.OnPieceRemoved(piece);

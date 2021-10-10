@@ -8,7 +8,6 @@ public class SquareSelectorCreator : MonoBehaviour
     [SerializeField] internal Material freeSquareMaterial;
     [SerializeField] internal Material opponentSquareMaterial;
     [SerializeField] internal Material teleportationSquareMaterial;
-    [SerializeField] internal Material traceSquareMaterial;
     [SerializeField] internal GameObject selectorPrefab;
     private List<GameObject> instantiatedSelectors = new List<GameObject>();
 

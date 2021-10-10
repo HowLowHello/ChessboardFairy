@@ -8,7 +8,7 @@ using UnityEngine;
 public abstract class Piece : MonoBehaviour
 {
     private MaterialSetter materialSetter;
-    public Board board { protected get; set; }
+    public Board board { get; set; }
     public Vector2Int occupiedSqure { get; set; }
     public TeamColor color { get; set;}
     public bool hasMoved { get; private set; }
@@ -18,7 +18,7 @@ public abstract class Piece : MonoBehaviour
     protected IObjectTweener tweener;
     public abstract List<Vector2Int> SelectAvailableSquares();
 
-    private void Awake()
+    protected void Awake()
     {
         this.availableMoves = new List<Vector2Int>();
         this.tweener = GetComponent<IObjectTweener>();

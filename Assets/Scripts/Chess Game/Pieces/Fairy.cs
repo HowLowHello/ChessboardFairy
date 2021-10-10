@@ -2,8 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(FairyEffectsCreator))]
 public class Fairy : Piece
 {
+    private FairyEffectsCreator fairyEffectsCreator;
     private Vector2Int[] directions = new Vector2Int[]
     {
         new Vector2Int(1, 1),
@@ -16,7 +18,8 @@ public class Fairy : Piece
         Vector2Int.down
     };
     internal List<Vector2Int> traces;
-    private int tpCharges = 3;
+    public bool hasProtectionSheild { get; private set; }
+    public int tpCharges { get; private set; }
     public List<Vector2Int> tpMoves;
     public List<Vector2Int> SelectTPSquares()
     {
@@ -27,6 +30,14 @@ public class Fairy : Piece
     public bool hasTPCharges()
     {
         return this.tpCharges > 0;
+    }
+
+    void Awake()
+    {
+        base.Awake();
+        this.tpCharges = 3;
+        this.hasProtectionSheild = true;
+        this.fairyEffectsCreator = GetComponent<FairyEffectsCreator>();
     }
 
 
@@ -51,6 +62,13 @@ public class Fairy : Piece
                 if (tpMoves.Contains(coords))
                 {
                     tpMoves.Remove(coords);
+                }
+            }
+            foreach (var traceSquare in fairyEffectsCreator.traceSquares)
+            {
+                if (tpMoves.Contains(traceSquare.coords))
+                {
+                    tpMoves.Remove(traceSquare.coords);
                 }
             }
         }
@@ -93,6 +111,13 @@ public class Fairy : Piece
                     break;
                 }
             }
+            foreach (var traceSquare in fairyEffectsCreator.traceSquares)
+            {
+                if (availableMoves.Contains(traceSquare.coords))
+                {
+                    availableMoves.Remove(traceSquare.coords);
+                }
+            }
         }
     }
 
@@ -103,16 +128,32 @@ public class Fairy : Piece
         Vector3 relativePos = toPos - fromPos;
         transform.rotation = Quaternion.LookRotation(relativePos, new Vector3(0, 1, 0));
 
+        this.fairyEffectsCreator.UpdateTrace(this);
+
         base.MovePiece(toCoords);
 
     }
 
+    public void PrepareToTeleport(Vector3 toPos)
+    {
+        this.fairyEffectsCreator.CreateTeleportEffects(this, toPos);
+        AudioSource audio = GetComponent<AudioSource>();
+        audio.Play();
+    }
+
     public void Teleport(Vector2Int toCoords)
     {
-        this.tpCharges -= 1;
+        this.tpCharges -- ;
         this.occupiedSqure = toCoords;
         transform.position = board.CalculatePositionFromCoords(toCoords);
         Quaternion.LookRotation(new Vector3(0, 0, -1));
+
+        foreach (var square in fairyEffectsCreator.traceSquares)
+        {
+            GameObject.Destroy(square.traceSquare);
+        }
+        this.fairyEffectsCreator.traceSquares.Clear();
+        this.board.nonpawnPiecesTakenOut -= 2;
     }
 
 }
