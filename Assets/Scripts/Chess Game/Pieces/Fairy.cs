@@ -143,7 +143,10 @@ public class Fairy : Piece
 
     public void Teleport(Vector2Int toCoords)
     {
-        this.tpCharges -- ;
+        if (this.tpCharges > 0)
+        {
+            this.tpCharges--;
+        }
         this.occupiedSqure = toCoords;
         transform.position = board.CalculatePositionFromCoords(toCoords);
         Quaternion.LookRotation(new Vector3(0, 0, -1));
@@ -153,7 +156,19 @@ public class Fairy : Piece
             GameObject.Destroy(square.traceSquare);
         }
         this.fairyEffectsCreator.traceSquares.Clear();
-        this.board.nonpawnPiecesTakenOut -= 2;
+        if (this.board.nonpawnPiecesTakenOut - 2 >= 0)
+        {
+            this.board.nonpawnPiecesTakenOut -= 2;
+        }
+        else if (this.board.nonpawnPiecesTakenOut == 1)
+        {
+            this.board.nonpawnPiecesTakenOut --;
+        }
+        else
+        {
+            return;
+        }
+
     }
 
 }
