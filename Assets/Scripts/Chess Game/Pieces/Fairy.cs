@@ -18,7 +18,7 @@ public class Fairy : Piece
         Vector2Int.down
     };
     internal List<Vector2Int> traces;
-    public bool hasProtectionSheild { get; private set; }
+    public bool hasProtectionSheild { get; set; }
     public int tpCharges { get; private set; }
     public List<Vector2Int> tpMoves;
     public List<Vector2Int> SelectTPSquares()

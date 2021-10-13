@@ -13,10 +13,10 @@ public class ChessUIController : MonoBehaviour
         UIParent.SetActive(false);
     }
 
-    public void OnGameFinished(string winner)
+    public void OnGameFinished(string message)
     {
         UIParent.SetActive(true);
-        resultText.text = string.Format("{0} 获得了胜利", winner);
+        resultText.text = string.Format(message);
     }
 
 }

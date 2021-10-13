@@ -7,7 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(PiecesCreator))]
 public class ChessGameController : MonoBehaviour
 {
-    private enum GameState { Init, Play, Finished}
+    private enum GameState { Init, Play, Finished }
     private GameState gameState;
     [SerializeField] private BoardLayout startingBoardLayout;
     [SerializeField] private Board board;
@@ -72,7 +72,7 @@ public class ChessGameController : MonoBehaviour
 
     private void CreatePiecesFromLayout(BoardLayout layout)
     {
-        for (int i = 0; i < layout.GetPiecesCount(); i++) 
+        for (int i = 0; i < layout.GetPiecesCount(); i++)
         {
             Vector2Int squareCoords = layout.GetSquareCoordsAtIndes(i);
             TeamColor color = layout.GetSquareTeamColorAtIndex(i);
@@ -140,7 +140,7 @@ public class ChessGameController : MonoBehaviour
         {
             if (CheckIfPlayerCanFinishGame(activePlayer))
             {
-                this.EndGame();
+                this.EndGame(activePlayer);
             }
             else
             {
@@ -154,11 +154,20 @@ public class ChessGameController : MonoBehaviour
         }
     }
 
-    private void EndGame()
+    private void EndGame(ChessPlayer player)
     {
-        this.uiController.OnGameFinished(activePlayer.teamColor.ToString());
-        this.SetGameState(GameState.Finished);
-        Debug.Log("Game Finished");
+        if (player.teamColor == TeamColor.Fairy)
+        {
+            this.uiController.OnGameFinished("You Fail");
+            this.SetGameState(GameState.Finished);
+            Debug.Log("Game Finished");
+        }
+        else
+        {
+            this.uiController.OnGameFinished("You survived to the last turn! Congratulations");
+            this.SetGameState(GameState.Finished);
+            Debug.Log("Game Finished");
+        }
     }
 
     private bool CheckIfPlayerCanFinishGame(ChessPlayer player)
@@ -197,7 +206,7 @@ public class ChessGameController : MonoBehaviour
     {
         if (player == fairyPlayer)
             return GetOpponentTo(previousPlayer);
-        else 
+        else
             return fairyPlayer;
     }
 
@@ -218,8 +227,40 @@ public class ChessGameController : MonoBehaviour
 
     public void OnPieceRemoved(Piece piece)
     {
-        ChessPlayer pieceOwner = (piece.color == TeamColor.White) ? whitePlayer : blackPlayer;
-        pieceOwner.RemovePiece(piece);
-        GameObject.Destroy(piece.gameObject);
+        if (piece is Fairy)
+        {
+            Fairy fairy = (Fairy)piece;
+            if (fairy.hasProtectionSheild)
+            {
+                fairy.hasProtectionSheild = false;
+                this.SetPieceOnRandomCoords(fairy);
+            }
+            else
+            {
+                this.EndGame(this.fairyPlayer);
+            }
+            return;
+
+        }
+        else
+        {
+            ChessPlayer pieceOwner = (piece.color == TeamColor.White) ? whitePlayer : blackPlayer;
+            pieceOwner.RemovePiece(piece);
+            GameObject.Destroy(piece.gameObject);
+        }
+
+    }
+
+    private void SetPieceOnRandomCoords(Fairy fairy)
+    {
+        System.Random random = new System.Random();
+        Vector2Int nextCoords = new Vector2Int(random.Next(0, Board.BOARD_SIZE + 1), random.Next(0, Board.BOARD_SIZE + 1));
+        while (!board.CheckIfCoordinatedAreOnBoard(nextCoords) || board.GetPieceOnSquare(nextCoords) != null)
+        {
+            nextCoords = new Vector2Int(random.Next(0, Board.BOARD_SIZE + 1), random.Next(0, Board.BOARD_SIZE + 1));
+        }
+        board.UpdateBoardOnPieceMove(nextCoords, fairy.occupiedSqure, fairy, null);
+        fairy.MovePiece(nextCoords);
+        return;
     }
 }
