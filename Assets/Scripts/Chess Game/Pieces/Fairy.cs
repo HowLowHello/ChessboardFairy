@@ -38,6 +38,7 @@ public class Fairy : Piece
         this.tpCharges = 3;
         this.hasProtectionSheild = true;
         this.fairyEffectsCreator = GetComponent<FairyEffectsCreator>();
+        this.fairyEffectsCreator.InstantiateShield(this);
     }
 
 

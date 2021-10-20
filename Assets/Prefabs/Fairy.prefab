@@ -2920,6 +2920,7 @@ MonoBehaviour:
   magicBeamPrefab: {fileID: 32014177131862149, guid: 0049f07d70cea3c46b14b74d1c9fa214, type: 3}
   traceSquarePrefab: {fileID: 1625892269204815410, guid: 3186628bc4da7964aa5f8112114a0566, type: 3}
   traceSquareMaterial: {fileID: 2100000, guid: cac025d93911be24691464c8b42fda4e, type: 2}
+  forceShieldPrefab: {fileID: 5881409401173891374, guid: c0ac779c7f9510743a339fd9d5a8450e, type: 3}
 --- !u!114 &4493502335287327149
 MonoBehaviour:
   m_ObjectHideFlags: 0

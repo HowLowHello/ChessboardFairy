@@ -10,9 +10,19 @@ public class FairyEffectsCreator : MonoBehaviour
     [SerializeField] private GameObject magicBeamPrefab;
     [SerializeField] private GameObject traceSquarePrefab;
     [SerializeField] private Material traceSquareMaterial;
+    [SerializeField] private GameObject forceShieldPrefab;
     private GameObject instantiatedMagicCircle;
     private GameObject instantiatedMagicBeam;
+    private GameObject protectionShield;
     public List<TraceUnit> traceSquares = new List<TraceUnit>();
+
+    public void InstantiateShield(Fairy fairy)
+    {
+        GameObject shield = Instantiate(forceShieldPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        this.protectionShield = shield;
+        protectionShield.transform.SetParent(fairy.transform);
+        
+    }
 
     public void UpdateTrace(Fairy fairy)
     {
