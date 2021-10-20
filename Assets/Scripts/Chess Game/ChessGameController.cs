@@ -233,6 +233,7 @@ public class ChessGameController : MonoBehaviour
             if (fairy.hasProtectionSheild)
             {
                 fairy.hasProtectionSheild = false;
+                fairy.OnShieldBroken();
                 this.SetPieceOnRandomCoords(fairy);
             }
             else

@@ -172,4 +172,8 @@ public class Fairy : Piece
 
     }
 
+    internal void OnShieldBroken()
+    {
+        this.fairyEffectsCreator.OnShieldBroken();
+    }
 }

@@ -1,3 +1,4 @@
+using EasyGameStudio.Jeremy;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,12 +17,19 @@ public class FairyEffectsCreator : MonoBehaviour
     private GameObject protectionShield;
     public List<TraceUnit> traceSquares = new List<TraceUnit>();
 
-    public void InstantiateShield(Fairy fairy)
+    internal void InstantiateShield(Fairy fairy)
     {
         GameObject shield = Instantiate(forceShieldPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-        this.protectionShield = shield;
+        protectionShield = shield;
         protectionShield.transform.SetParent(fairy.transform);
         
+    }
+
+    internal void OnShieldBroken()
+    {
+        Force_field_control shieldController = protectionShield.GetComponent<Force_field_control>();
+        shieldController.hide();
+
     }
 
     public void UpdateTrace(Fairy fairy)
