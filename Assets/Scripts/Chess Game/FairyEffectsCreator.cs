@@ -17,6 +17,12 @@ public class FairyEffectsCreator : MonoBehaviour
     private GameObject protectionShield;
     public List<TraceUnit> traceSquares = new List<TraceUnit>();
 
+
+    public bool hasTeleportEffectActivated()
+    {
+        return this.instantiatedMagicCircle != null;
+    }
+
     internal void InstantiateShield(Fairy fairy)
     {
         GameObject shield = Instantiate(forceShieldPrefab, new Vector3(0, 0, 0), Quaternion.identity);

@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(FairyEffectsCreator))]
 public class Fairy : Piece
 {
-    private FairyEffectsCreator fairyEffectsCreator;
+    public FairyEffectsCreator fairyEffectsCreator;
     private Vector2Int[] directions = new Vector2Int[]
     {
         new Vector2Int(1, 1),

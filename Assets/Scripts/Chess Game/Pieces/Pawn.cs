@@ -34,10 +34,6 @@ public class Pawn : Piece
         {
             Vector2Int nextCoords = this.occupiedSqure + takeDirections[i];
             Piece piece = this.board.GetPieceOnSquare(nextCoords);
-            if (!board.CheckIfCoordinatedAreOnBoard(nextCoords))
-            {
-                break;
-            }
             //
             if (piece != null && !piece.IsFromSameTeam(this))
             {

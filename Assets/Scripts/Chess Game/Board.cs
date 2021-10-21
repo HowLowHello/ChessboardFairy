@@ -88,6 +88,10 @@ public class Board : MonoBehaviour
                     }
                     else if (fairy.CanTeleportTo(coords))
                     {
+                        if (fairy.fairyEffectsCreator.hasTeleportEffectActivated())
+                        {
+                            return;
+                        }
                         fairy.PrepareToTeleport(inputPosition);
                         this.fairyToTeleport = fairy;
                         this.coordsToTeleport = coords;
@@ -232,6 +236,11 @@ public class Board : MonoBehaviour
         if (piece != null && !selectedPiece.IsFromSameTeam(piece))
         {
             this.TakePiece(piece);
+            chessGameController.PlayTakePieceAudio();
+        }
+        else
+        {
+            chessGameController.PlayMovePieceAudio();
         }
     }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[RequireComponent(typeof(PieceAudioManager))]
 [RequireComponent(typeof(PiecesCreator))]
 public class ChessGameController : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class ChessGameController : MonoBehaviour
     [SerializeField] private BoardLayout startingBoardLayout;
     [SerializeField] private Board board;
     [SerializeField] private ChessUIController uiController;
+    private PieceAudioManager audioManager;
     private PiecesCreator piecesCreator;
     private ChessPlayer whitePlayer;
     private ChessPlayer blackPlayer;
@@ -35,6 +37,7 @@ public class ChessGameController : MonoBehaviour
     private void SetDependencies()
     {
         this.piecesCreator = GetComponent<PiecesCreator>();
+        this.audioManager = GetComponent<PieceAudioManager>();
     }
 
     // Start is called before the first frame update
@@ -263,5 +266,15 @@ public class ChessGameController : MonoBehaviour
         board.UpdateBoardOnPieceMove(nextCoords, fairy.occupiedSqure, fairy, null);
         fairy.MovePiece(nextCoords);
         return;
+    }
+
+    public void PlayTakePieceAudio()
+    {
+        audioManager.PlayPieceTakenSound();
+    }
+
+    public void PlayMovePieceAudio()
+    {
+        audioManager.PlayMovementSound();
     }
 }

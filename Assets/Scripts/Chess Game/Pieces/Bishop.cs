@@ -32,7 +32,7 @@ public class Bishop : Piece
                 {
                     this.TryToAddMove(nextCoords);
                 }
-                else if (!piece.IsFromSameTeam(this))
+                else if (!piece.IsFromSameTeam(this) && !(piece is Fairy))
                 {
                     this.TryToAddMove(nextCoords);
                     break;
@@ -40,6 +40,10 @@ public class Bishop : Piece
                 else if (piece.IsFromSameTeam(this))
                 {
                     break;
+                }
+                else if (piece is Fairy)
+                {
+                    this.TryToAddMove(nextCoords);
                 }
             }
         }
