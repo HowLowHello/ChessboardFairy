@@ -8,7 +8,7 @@ public class BoardLayout : ScriptableObject
     private class BoardSquareSetup
     {
         public Vector2Int position;
-        public PieceType pieceType;
+        public ChessGamePieceType pieceType;
         public TeamColor teamColor;
     }
 

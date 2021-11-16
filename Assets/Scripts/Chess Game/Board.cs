@@ -205,12 +205,33 @@ public class Board : MonoBehaviour
     }
     private void OnSelectedPieceMoved(Vector2Int toCoords)
     {
-        this.TryToTakeOppositePiece(toCoords);
+        this.TryToTakeOppositePiece(toCoords, this.selectedPiece);
         this.UpdateBoardOnPieceMove(toCoords, this.selectedPiece.occupiedSqure, this.selectedPiece, null);
         this.selectedPiece.MovePiece(toCoords);
         this.DeselectPiece();
         this.chessGameController.EndTurn();
     }
+
+    public void OnAIPieceMoved(Vector2Int fromCoords, Vector2Int toCoords)
+    {
+        Piece pieceToMove = this.GetPieceOnSquare(fromCoords);
+        if (pieceToMove == null)
+        {
+            Debug.LogError("Piece not Found.");
+            return;
+        }
+        else if (pieceToMove.color != chessGameController.activePlayer.teamColor)
+        {
+            Debug.LogError("AI Trying to move a Wrong Piece.");
+            return;
+        }
+        this.TryToTakeOppositePiece(toCoords, pieceToMove);
+        this.UpdateBoardOnPieceMove(toCoords, pieceToMove.occupiedSqure, pieceToMove, null);
+        pieceToMove.MovePiece(toCoords);
+        this.DeselectPiece();
+        this.chessGameController.EndTurn();
+    }
+
     private void OnSelectedFairyTeleported()
     {
         if (!chessGameController.IsTeamTurnActive(TeamColor.Fairy) || fairyToTeleport == null)
@@ -230,10 +251,10 @@ public class Board : MonoBehaviour
         this.grid[newCoords.x, newCoords.y] = newPiece;
     }    
     
-    private void TryToTakeOppositePiece(Vector2Int coords)
+    private void TryToTakeOppositePiece(Vector2Int coords, Piece movingPiece)
     {
         Piece piece = GetPieceOnSquare(coords);
-        if (piece != null && !selectedPiece.IsFromSameTeam(piece))
+        if (piece != null && !movingPiece.IsFromSameTeam(piece))
         {
             this.TakePiece(piece);
             chessGameController.PlayTakePieceAudio();

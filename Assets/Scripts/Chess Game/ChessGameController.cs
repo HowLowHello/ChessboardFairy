@@ -15,23 +15,26 @@ public class ChessGameController : MonoBehaviour
     [SerializeField] private ChessUIController uiController;
     private PieceAudioManager audioManager;
     private PiecesCreator piecesCreator;
-    private ChessPlayer whitePlayer;
-    private ChessPlayer blackPlayer;
-    private ChessPlayer fairyPlayer;
-    private ChessPlayer activePlayer;
-    private ChessPlayer previousPlayer;
+    private ChessGamePlayer whitePlayer;
+    private ChessGamePlayer blackPlayer;
+    private ChessGamePlayer fairyPlayer;
+    public ChessGamePlayer activePlayer { get; private set; }
+    private ChessGamePlayer previousPlayer;
+    public List<PieceMoveData> movesToApply = new List<PieceMoveData>();
+    private int moveCounter = 0;
 
     private void Awake()
     {
         this.SetDependencies();
         this.CreatePlayers();
+        this.activePlayer = whitePlayer;
     }
 
     private void CreatePlayers()
     {
-        this.whitePlayer = new ChessPlayer(TeamColor.White, board);
-        this.blackPlayer = new ChessPlayer(TeamColor.Black, board);
-        this.fairyPlayer = new ChessPlayer(TeamColor.Fairy, board);
+        this.whitePlayer = new ChessGamePlayer(TeamColor.White, board);
+        this.blackPlayer = new ChessGamePlayer(TeamColor.Black, board);
+        this.fairyPlayer = new ChessGamePlayer(TeamColor.Fairy, board);
     }
 
     private void SetDependencies()
@@ -55,6 +58,8 @@ public class ChessGameController : MonoBehaviour
         this.activePlayer = whitePlayer;
         this.GenerateAllPossiblePlayerMoves(activePlayer);
         this.SetGameState(GameState.Play);
+        // let the white make their first move
+        StartCoroutine(ApplyNextAIPieceMove());
     }
 
     public void RestartGame()
@@ -85,7 +90,7 @@ public class ChessGameController : MonoBehaviour
             this.CreatePieceAndInitialize(squareCoords, color, type);
         }
     }
-    private void GenerateAllPossiblePlayerMoves(ChessPlayer player)
+    private void GenerateAllPossiblePlayerMoves(ChessGamePlayer player)
     {
         player.GenerateAllPossibleMoves();
     }
@@ -113,7 +118,7 @@ public class ChessGameController : MonoBehaviour
 
             board.SetPieceOnBoard(squareCoords, newPiece);
 
-            ChessPlayer currentPlayer = color == TeamColor.White ? whitePlayer : blackPlayer;
+            ChessGamePlayer currentPlayer = color == TeamColor.White ? whitePlayer : blackPlayer;
             currentPlayer.AddPiece(newPiece);
         }
 
@@ -157,7 +162,7 @@ public class ChessGameController : MonoBehaviour
         }
     }
 
-    private void EndGame(ChessPlayer player)
+    private void EndGame(ChessGamePlayer player)
     {
         if (player.teamColor == TeamColor.Fairy)
         {
@@ -173,13 +178,13 @@ public class ChessGameController : MonoBehaviour
         }
     }
 
-    private bool CheckIfPlayerCanFinishGame(ChessPlayer player)
+    private bool CheckIfPlayerCanFinishGame(ChessGamePlayer player)
     {
         // player should be activePlayer
         Piece[] kingAttackingPieces = player.GetPiecesAttackingOppositePieceOfType<King>();
         if (kingAttackingPieces.Length > 0)
         {
-            ChessPlayer oppositePlayer = this.GetOpponentTo(player);
+            ChessGamePlayer oppositePlayer = this.GetOpponentTo(player);
             Piece attackedKing = oppositePlayer.GetPiecesOfType<King>().FirstOrDefault();
             oppositePlayer.RemoveMovesEnablingAttackOnPiece<King>(player, attackedKing);
 
@@ -200,12 +205,18 @@ public class ChessGameController : MonoBehaviour
     {
         if (activePlayer != fairyPlayer)
         {
+            // record whether latest move is white or black
             this.previousPlayer = activePlayer;
+        }
+        else
+        {
+            // fairy makes a move, should fetch next piece movement
+            StartCoroutine(ApplyNextAIPieceMove());
         }
         this.activePlayer = GetPlayerNextTo(activePlayer);
     }
 
-    private ChessPlayer GetPlayerNextTo(ChessPlayer player)
+    private ChessGamePlayer GetPlayerNextTo(ChessGamePlayer player)
     {
         if (player == fairyPlayer)
             return GetOpponentTo(previousPlayer);
@@ -213,7 +224,7 @@ public class ChessGameController : MonoBehaviour
             return fairyPlayer;
     }
 
-    private ChessPlayer GetOpponentTo(ChessPlayer player)
+    private ChessGamePlayer GetOpponentTo(ChessGamePlayer player)
     {
         if (player == fairyPlayer)
         {
@@ -248,7 +259,7 @@ public class ChessGameController : MonoBehaviour
         }
         else
         {
-            ChessPlayer pieceOwner = (piece.color == TeamColor.White) ? whitePlayer : blackPlayer;
+            ChessGamePlayer pieceOwner = (piece.color == TeamColor.White) ? whitePlayer : blackPlayer;
             pieceOwner.RemovePiece(piece);
             GameObject.Destroy(piece.gameObject);
         }
@@ -266,6 +277,37 @@ public class ChessGameController : MonoBehaviour
         board.UpdateBoardOnPieceMove(nextCoords, fairy.occupiedSqure, fairy, null);
         fairy.MovePiece(nextCoords);
         return;
+    }
+
+    public IEnumerator ApplyNextAIPieceMove()
+    {
+        System.Random random = new System.Random();
+        yield return new WaitForSeconds(random.Next(3, 6));
+
+        if (movesToApply.Count > moveCounter)
+        {
+            if (movesToApply[moveCounter] != null)
+            {
+                PieceMoveData data = movesToApply[moveCounter];
+                board.OnAIPieceMoved(data.fromCoords, data.toCoords);
+                moveCounter++;
+            }
+            else
+            {
+                StartCoroutine(WaitForSecs());
+            }
+        }
+        else
+        {
+            StartCoroutine(WaitForSecs());
+        }
+    }
+
+    private IEnumerator WaitForSecs()
+    {
+        Debug.Log("Pushing the game too fast! Waiting for 1 sec to refetch next move.");
+        yield return new WaitForSeconds(1f);
+        StartCoroutine(ApplyNextAIPieceMove());
     }
 
     public void PlayTakePieceAudio()

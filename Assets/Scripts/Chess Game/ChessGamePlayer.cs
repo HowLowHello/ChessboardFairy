@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ChessPlayer
+public class ChessGamePlayer
 {
     public TeamColor teamColor { get; set; }
     private Board board { get; set; }
     public List<Piece> activePieces { get; private set; }
 
-    public ChessPlayer(TeamColor teamColor, Board board)
+    public ChessGamePlayer(TeamColor teamColor, Board board)
     {
         this.teamColor = teamColor;
         this.board = board;
@@ -71,7 +71,7 @@ public class ChessPlayer
     }
 
     //
-    public void RemoveMovesEnablingAttackOnPiece<T>(ChessPlayer opponent, Piece selectedPiece) where T : Piece
+    public void RemoveMovesEnablingAttackOnPiece<T>(ChessGamePlayer opponent, Piece selectedPiece) where T : Piece
     {
         List<Vector2Int> coordsToRemove = new List<Vector2Int>();
         foreach (var coords in selectedPiece.availableMoves)
@@ -108,7 +108,7 @@ public class ChessPlayer
         return false;
     }
 
-    public bool CanHidePieceFromAttack<T>(ChessPlayer opponent) where T : Piece
+    public bool CanHidePieceFromAttack<T>(ChessGamePlayer opponent) where T : Piece
     {
         foreach (var piece in activePieces)
         {
