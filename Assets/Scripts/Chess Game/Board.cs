@@ -40,13 +40,17 @@ public class Board : MonoBehaviour
 
     internal Vector3 CalculatePositionFromCoords(Vector2Int coords)
     {
-        return bottomLeftSquareTransform.position + new Vector3(coords.x * squareSize, 0f, coords.y * squareSize);
+        return bottomLeftSquareTransform.position + new Vector3(coords.y * squareSize, 0f,  -(coords.x * squareSize));
+        //return bottomLeftSquareTransform.position + new Vector3(coords.x * squareSize, 0f, coords.y * squareSize);
     }
 
     internal Vector2Int CalculateCoordsFromPosition(Vector3 inputPosition)
     {
-        int x = Mathf.FloorToInt(transform.InverseTransformPoint(inputPosition).x / squareSize) + BOARD_SIZE / 2;
-        int y = Mathf.FloorToInt(transform.InverseTransformPoint(inputPosition).z / squareSize) + BOARD_SIZE / 2;
+        int x = Mathf.FloorToInt(transform.InverseTransformPoint(inputPosition).x / (5*squareSize)) + BOARD_SIZE / 2;
+        int y = Mathf.FloorToInt((transform.InverseTransformPoint(inputPosition).z / (5*squareSize))) + BOARD_SIZE / 2;
+        //int x = Mathf.FloorToInt(transform.InverseTransformPoint(inputPosition).x / squareSize) + BOARD_SIZE / 2;
+        //int y = Mathf.FloorToInt(transform.InverseTransformPoint(inputPosition).z / squareSize) + BOARD_SIZE / 2;
+        Debug.Log("Vec (" + x + "," + y + ")");
         return new Vector2Int(x, y);
     }
 

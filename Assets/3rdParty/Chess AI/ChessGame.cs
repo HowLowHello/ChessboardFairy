@@ -16,6 +16,10 @@ namespace ExampleChessGame
 
         void Start()
         {
+            GetComponent<ChessGame>().enabled = false;
+            return;
+
+
             // Set dependencies
             chessGameController = GetComponent<ChessGameController>();
             if (chessGameController == null)
