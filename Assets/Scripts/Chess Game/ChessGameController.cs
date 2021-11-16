@@ -281,6 +281,8 @@ public class ChessGameController : MonoBehaviour
 
     public IEnumerator ApplyNextAIPieceMove()
     {
+        yield return new WaitForSeconds(10f);
+        /*
         System.Random random = new System.Random();
         yield return new WaitForSeconds(random.Next(3, 6));
 
@@ -301,6 +303,7 @@ public class ChessGameController : MonoBehaviour
         {
             StartCoroutine(WaitForSecs());
         }
+        */
     }
 
     private IEnumerator WaitForSecs()
